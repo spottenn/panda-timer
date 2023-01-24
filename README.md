@@ -2,9 +2,18 @@
     Panda Timer
 </h1>
 
+## EDIT
+
+The following is the original readme from before the project was forked. It needs to be updated to reflect the purpose of this fork and the changes that have been made.
+
+## Original readme
+
+
 <p align="center">
     <img src="panda-timer.gif" alt="Panda Timer">
 </p>
+
+
 
 This javascript widget was created for needs of the [Association Panda Thérèse-de Blainville et des Laurentides](https://translate.google.com/translate?sl=fr&tl=en&u=pandatdb.com) in order to contribute to the promotion of its services to the population by making this usefull tool available.
 
