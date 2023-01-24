@@ -72,10 +72,13 @@ class PandaTimer {
                 background: typeof config?.color?.background === 'string' ? config.color.background : PandaTimer.defaultConfig.color.background,
                 cursor: typeof config?.color?.cursor === 'string' ? config.color.cursor : PandaTimer.defaultConfig.color.cursor,
                 face: typeof config?.color?.face === 'string' ? config.color.face : PandaTimer.defaultConfig.color.face,
+                faceComplete: typeof config?.color?.faceComplete === 'string' ? config.color.faceComplete : PandaTimer.defaultConfig.color.faceComplete,
                 panda: typeof config?.color?.panda === 'string' ? config.color.panda : PandaTimer.defaultConfig.color.panda,
                 scale: typeof config?.color?.scale === 'string' ? config.color.scale : PandaTimer.defaultConfig.color.scale,
                 text: typeof config?.color?.text === 'string' ? config.color.text : PandaTimer.defaultConfig.color.text,
                 timer: typeof config?.color?.timer === 'string' ? config.color.timer : PandaTimer.defaultConfig.color.timer,
+                timer2: typeof config?.color?.timer2 === 'string' ? config.color.timer2 : PandaTimer.defaultConfig.color.timer2,
+                timer3: typeof config?.color?.timer3 === 'string' ? config.color.timer3 : PandaTimer.defaultConfig.color.timer3,
             },
             font: typeof config?.font === 'string' ? config.font : PandaTimer.defaultConfig.font,
             indexed: typeof config?.indexed === 'boolean' ? config.indexed : PandaTimer.defaultConfig.indexed,
@@ -86,6 +89,8 @@ class PandaTimer {
             },
             timeLeft: Math.max(0, parseInt(`${config?.timeLeft}`)) || PandaTimer.defaultConfig.timeLeft,
             timeMax: Math.max(0, parseInt(`${config?.timeMax}`)) || PandaTimer.defaultConfig.timeMax,
+            timeMax2: Math.max(0, parseInt(`${config?.timeMax2}`)) || PandaTimer.defaultConfig.timeMax2,
+            timeMax3: Math.max(0, parseInt(`${config?.timeMax3}`)) || PandaTimer.defaultConfig.timeMax3,
         };
 
         this.#ctx = canvas && canvas.getContext('2d');
@@ -170,7 +175,6 @@ class PandaTimer {
 
         if (!this.timeLeft) {
             this.#playCompleted();
-
             return;
         }
 
@@ -263,7 +267,6 @@ class PandaTimer {
         this.#drawFace();
         this.#drawTicks();
         this.#drawTimeLeft();
-        this.#drawPanda();
 
         if (this.#config.alterable)
             this.#drawCursor();
@@ -298,7 +301,7 @@ class PandaTimer {
     #drawFace() {
         this.#ctx.beginPath();
         this.#ctx.arc(this.#centerX, this.#centerY, this.#radius * 1.1, 0, 2 * Math.PI);
-        this.#ctx.fillStyle = this.#config.color.face;
+        this.#ctx.fillStyle = this.timeLeft ? this.#config.color.face : this.#config.color.faceComplete;
         this.#ctx.fill();
     }
 
@@ -315,7 +318,7 @@ class PandaTimer {
             const angle = i * Math.PI / -6;
             const label = `${Math.floor(i * step)}`;
 
-            this.#ctx.fillStyle = [1, 2, 6, 10, 11].includes(i) ? this.#config.color.face : this.#config.color.scale;
+            this.#ctx.fillStyle = this.#config.color.scale;
 
             this.#ctx.translate(this.#centerX, this.#centerY);
 
@@ -330,35 +333,6 @@ class PandaTimer {
 
             this.#ctx.translate(-this.#centerX, -this.#centerY);
         }
-    }
-
-    #drawPanda() {
-        this.#ctx.fillStyle = this.#config.color.panda;
-
-        this.#ctx.translate(this.#centerX, this.#centerY);
-
-        this.#ctx.beginPath();
-        this.#ctx.rotate(-0.25 * Math.PI);
-        this.#ctx.arc(0, this.#radius * -0.95, this.#radius * 0.4, 0.875 * Math.PI, 0.125 * Math.PI);
-        this.#ctx.fill();
-        this.#ctx.rotate(0.25 * Math.PI);
-
-        this.#ctx.beginPath();
-        this.#ctx.rotate(0.25 * Math.PI);
-        this.#ctx.arc(0, this.#radius * -0.95, this.#radius * 0.4, 0.875 * Math.PI, 0.125 * Math.PI);
-        this.#ctx.fill();
-        this.#ctx.rotate(-0.25 * Math.PI);
-
-        this.#ctx.beginPath();
-        this.#ctx.ellipse(this.#radius * -0.35, 0, this.#radius * 0.25, this.#radius * 0.4, 0.1 * Math.PI, 0, 2 * Math.PI);
-        this.#ctx.ellipse(this.#radius * 0.35, 0, this.#radius * 0.25, this.#radius * 0.4, -0.1 * Math.PI, 0, 2 * Math.PI);
-        this.#ctx.fill();
-
-        this.#ctx.beginPath();
-        this.#ctx.arc(0, this.#radius * 0.85, this.#radius * 0.2, 1.925 * Math.PI, 1.075 * Math.PI);
-        this.#ctx.fill();
-
-        this.#ctx.translate(-this.#centerX, -this.#centerY);
     }
 
     #drawText() {
@@ -418,26 +392,37 @@ class PandaTimer {
     }
 
     #drawTimeLeft() {
-        const angle = 2 * Math.PI / this.#config.timeMax * (this.#config.timeMax - this.timeLeft) - 0.5 * Math.PI;
 
-        this.#ctx.translate(this.#centerX, this.#centerY);
+        const timeArcs = [
+            {time:this.#config.timeMax3, color: this.#config.color.timer3, radius: 0.8},
+            {time:this.#config.timeMax2, color: this.#config.color.timer2, radius: 0.7},
+            {time:this.#config.timeMax, color: this.#config.color.timer, radius: 0.6},
 
-        this.#ctx.fillStyle = this.#config.color.timer;
+        ]
+        
+        timeArcs.forEach(timeArc => {
+            let angle = 2 * Math.PI / timeArc.time * (timeArc.time - this.timeLeft) - 0.5 * Math.PI;
+            
 
-        this.#ctx.beginPath();
-        this.#ctx.moveTo(0, 0);
-        this.#ctx.arc(0, 0, this.#radius * 0.8, angle, 1.5 * Math.PI);
-        this.#ctx.lineTo(0, 0);
-        this.#ctx.fill();
+            this.#ctx.translate(this.#centerX, this.#centerY);
 
-        this.#ctx.beginPath();
-        this.#ctx.arc(0, 0, this.#radius * 0.025, 0, 2 * Math.PI);
-        this.#ctx.shadowBlur = this.#radius * 0.01;
-        this.#ctx.shadowColor = '#333';
-        this.#ctx.fill();
-        this.#ctx.shadowBlur = 0;
+            this.#ctx.fillStyle = timeArc.color;
 
-        this.#ctx.translate(-this.#centerX, -this.#centerY);
+            this.#ctx.beginPath();
+            this.#ctx.moveTo(0, 0);
+            this.#ctx.arc(0, 0, this.#radius * timeArc.radius, angle, 1.5 * Math.PI);
+            this.#ctx.lineTo(0, 0);
+            this.#ctx.fill();
+
+            this.#ctx.beginPath();
+            this.#ctx.arc(0, 0, this.#radius * 0.025, 0, 2 * Math.PI);
+            this.#ctx.shadowBlur = this.#radius * 0.01;
+            this.#ctx.shadowColor = '#333';
+            this.#ctx.fill();
+            this.#ctx.shadowBlur = 0;
+
+            this.#ctx.translate(-this.#centerX, -this.#centerY);
+        });
     }
 
     #onMove(event) {
@@ -593,12 +578,15 @@ PandaTimer.defaultConfig = {
     autostart: true,
     color: {
         background: '#fff',
-        cursor: 'rgba(255, 51, 51, 0.3)',
+        cursor: '#4bf542',
         face: '#fff',
+        faceComplete: "red",
         panda: '#333',
         scale: '#333',
         text: '#333',
-        timer: '#f33',
+        timer: '#4bf542',
+        timer2: '#FFD700',
+        timer3: '#ed5cbd',
     },
     font: 'arial',
     indexed: true,
@@ -609,4 +597,6 @@ PandaTimer.defaultConfig = {
     },
     timeLeft: 0,
     timeMax: 3600,
+    timeMax2: 600,
+    timeMax3: 180,
 };
