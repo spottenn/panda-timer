@@ -51,7 +51,7 @@ const config = {};
 const canvasElement = document.getElementById('panda-timer');
 
 // Instanciate a new Panda Timer.
-const pandaTimer = new PandaTimer(config, canvasElement);
+const pandaTimer = new PandaTimer(canvasElement, config);
 ```
 
 ```javascript
@@ -108,7 +108,7 @@ console.log(pandaTimer.timeLeft);
                                           // of 5 minutes.
     text: {
         line1: 'Panda Timer',             // First text line.
-        line1: '',                        // Second text line.
+        line2: '',                        // Second text line.
     },
     timeLeft: 0,                          // Start with the time remaining in seconds.
     timeMax: 3600,                        // Maximum timer time in seconds.
